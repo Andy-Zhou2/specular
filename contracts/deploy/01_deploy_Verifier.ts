@@ -7,7 +7,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { sequencer, deployer } = await getNamedAccounts();
   const deployerSigner = await ethers.getSigner(deployer);
 
-  const Verifier = await ethers.getContractFactory("Verifier", deployer);
+  const Verifier = await ethers.getContractFactory("VerifierEntry", deployer);
   const verifier = await upgrades.deployProxy(Verifier, [], {
     initializer: "initialize",
     timeout: 0,
@@ -25,7 +25,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await upgrades.erc1967.getAdminAddress(verifier.address)
   );
 
-  const artifact = await deployments.getExtendedArtifact("Verifier");
+  const artifact = await deployments.getExtendedArtifact("VerifierEntry");
   const proxyDeployments = {
     address: verifier.address,
     ...artifact,
