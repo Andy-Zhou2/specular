@@ -59,6 +59,7 @@ func (v *Validator) tryValidateAssertion(lastValidatedAssertion, assertion *roll
 	currentBlockNum := assertion.StartBlock
 	currentChainHeight := v.Chain().CurrentBlock().NumberU64()
 	var block *types.Block
+	targetGasUsed := new(big.Int).Set(lastValidatedAssertion.CumulativeGasUsed)
 	for inboxSizeDiff.Cmp(common.Big0) > 0 {
 		if currentBlockNum > currentChainHeight {
 			return errAssertionOverflowedLocalInbox
@@ -71,6 +72,7 @@ func (v *Validator) tryValidateAssertion(lastValidatedAssertion, assertion *roll
 		if numTxs > inboxSizeDiff.Uint64() {
 			return fmt.Errorf("UNHANDLED: Assertion created in the middle of block, validator state corrupted!")
 		}
+		targetGasUsed.Add(targetGasUsed, new(big.Int).SetUint64(block.GasUsed()))
 		inboxSizeDiff = new(big.Int).Sub(inboxSizeDiff, new(big.Int).SetUint64(numTxs))
 		currentBlockNum++
 	}
@@ -79,10 +81,12 @@ func (v *Validator) tryValidateAssertion(lastValidatedAssertion, assertion *roll
 	if targetVmHash != assertion.VmHash {
 		// Validation failed
 		ourAssertion := &rollupTypes.Assertion{
-			VmHash:     targetVmHash,
-			InboxSize:  assertion.InboxSize,
-			StartBlock: assertion.StartBlock,
-			EndBlock:   assertion.EndBlock,
+			VmHash:                targetVmHash,
+			CumulativeGasUsed:     targetGasUsed,
+			InboxSize:             assertion.InboxSize,
+			StartBlock:            assertion.StartBlock,
+			EndBlock:              assertion.EndBlock,
+			PrevCumulativeGasUsed: new(big.Int).Set(lastValidatedAssertion.CumulativeGasUsed),
 		}
 		v.challengeCh <- &challengeCtx{assertion, ourAssertion, lastValidatedAssertion}
 		return errValidationFailed
@@ -179,10 +183,12 @@ func (v *Validator) validationLoop(ctx context.Context) {
 					log.Crit("Could not get DA", "error", err)
 				}
 				assertion := &rollupTypes.Assertion{
-					ID:         ev.AssertionID,
-					VmHash:     ev.VmHash,
-					InboxSize:  assertionFromRollup.InboxSize,
-					StartBlock: lastValidatedAssertion.EndBlock + 1,
+					ID:                    ev.AssertionID,
+					VmHash:                ev.VmHash,
+					CumulativeGasUsed:     new(big.Int), // TODO: get from rollup
+					InboxSize:             assertionFromRollup.InboxSize,
+					StartBlock:            lastValidatedAssertion.EndBlock + 1,
+					PrevCumulativeGasUsed: new(big.Int).Set(lastValidatedAssertion.CumulativeGasUsed),
 				}
 				if currentAssertion != nil {
 					// TODO: handle concurrent assertions
@@ -352,6 +358,7 @@ func (v *Validator) challengeLoop(ctx context.Context) {
 					states, err = proof.GenerateStates(
 						v.ProofBackend,
 						ctx,
+						chalCtx.opponentAssertion.PrevCumulativeGasUsed,
 						chalCtx.opponentAssertion.StartBlock,
 						chalCtx.opponentAssertion.EndBlock+1,
 						nil,
