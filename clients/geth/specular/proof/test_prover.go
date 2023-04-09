@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package prover
+package proof
 
 import (
 	"encoding/json"
@@ -28,7 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/specularl2/specular/clients/geth/specular/proof/proof"
+	"github.com/specularl2/specular/clients/geth/specular/proof/prover"
 	"github.com/specularl2/specular/clients/geth/specular/proof/state"
 )
 
@@ -245,8 +245,8 @@ func (l *TestProver) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 		}
 		// l.vmerr is the error of l.lastState, either before/during the opcode execution
 		// if l.vmerr is not nil, the current state s must be in the parent call frame of l.lastState
-		ctx := proof.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
-		osp, err := proof.GetIntraProof(ctx, l.lastState, s, l.vmerr)
+		ctx := prover.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
+		osp, err := prover.GetIntraProof(ctx, l.lastState, s, l.vmerr)
 		if err != nil {
 			l.err = err
 		} else {
@@ -350,8 +350,8 @@ func (l *TestProver) CaptureEnd(output []byte, gasUsed uint64, t time.Duration, 
 		l.done = true
 		// If l.vmerr is not nil, the entire transaction execution will be reverted.
 		// Otherwise, the execution ended through STOP or RETURN opcode.
-		ctx := proof.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
-		osp, err := proof.GetIntraProof(ctx, l.lastState, nil, l.vmerr)
+		ctx := prover.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
+		osp, err := prover.GetIntraProof(ctx, l.lastState, nil, l.vmerr)
 		if err != nil {
 			l.err = err
 		} else {

@@ -25,7 +25,6 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/specularl2/specular/clients/geth/specular/proof/prover"
 	oss "github.com/specularl2/specular/clients/geth/specular/proof/state"
 )
 
@@ -72,7 +71,7 @@ func (api *ProverAPI) GenerateProofForTest(ctx context.Context, hash common.Hash
 		receipts,
 		blockHashTree,
 	)
-	prover := prover.NewTestProver(
+	prover := NewTestProver(
 		step,
 		transaction,
 		&txContext,
