@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package prover
+package proof
 
 import (
 	"errors"
@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/specularl2/specular/clients/geth/specular/proof/proof"
+	"github.com/specularl2/specular/clients/geth/specular/proof/prover"
 	"github.com/specularl2/specular/clients/geth/specular/proof/state"
 )
 
@@ -50,7 +50,7 @@ type OneStepProver struct {
 	// Global
 	env             *vm.EVM
 	counter         uint64
-	proof           *proof.OneStepProof
+	proof           *prover.OneStepProof
 	vmerr           error // Error from EVM execution
 	err             error // Error from the tracer
 	done            bool
@@ -173,8 +173,8 @@ func (l *OneStepProver) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, 
 		}
 		// l.vmerr is the error of l.lastState, either before/during the opcode execution
 		// if l.vmerr is not nil, the current state s must be in the parent call frame of l.lastState
-		ctx := proof.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
-		osp, err := proof.GetIntraProof(ctx, l.lastState, s, l.vmerr)
+		ctx := prover.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
+		osp, err := prover.GetIntraProof(ctx, l.lastState, s, l.vmerr)
 		if err != nil {
 			l.err = err
 		} else {
@@ -275,8 +275,8 @@ func (l *OneStepProver) CaptureEnd(output []byte, gasUsed uint64, t time.Duratio
 		}
 		// If l.vmerr is not nil, the entire transaction execution will be reverted.
 		// Otherwise, the execution ended through STOP or RETURN opcode.
-		ctx := proof.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
-		osp, err := proof.GetIntraProof(ctx, l.lastState, nil, l.vmerr)
+		ctx := prover.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
+		osp, err := prover.GetIntraProof(ctx, l.lastState, nil, l.vmerr)
 		if err != nil {
 			l.err = err
 		} else {
@@ -285,7 +285,7 @@ func (l *OneStepProver) CaptureEnd(output []byte, gasUsed uint64, t time.Duratio
 	}
 }
 
-func (l *OneStepProver) GetProof() (*proof.OneStepProof, error) {
+func (l *OneStepProver) GetProof() (*prover.OneStepProof, error) {
 	if !l.done {
 		return nil, errors.New("proof not generated")
 	}

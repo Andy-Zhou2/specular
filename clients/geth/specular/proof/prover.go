@@ -26,7 +26,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/specularl2/specular/clients/geth/specular/proof/proof"
 	"github.com/specularl2/specular/clients/geth/specular/proof/prover"
 	"github.com/specularl2/specular/clients/geth/specular/proof/state"
 )
@@ -185,7 +184,7 @@ func GenerateStates(backend Backend, ctx context.Context, startGasUsed *big.Int,
 			})
 
 			// Execute transaction i with intra state generator enabled.
-			prover := prover.NewIntraStateGenerator(block.NumberU64(), uint64(i), statedb, *its, blockHashTree)
+			prover := NewIntraStateGenerator(block.NumberU64(), uint64(i), statedb, *its, blockHashTree)
 			vmenv := vm.NewEVM(blockCtx, txContext, statedb, backend.ChainConfig(), vm.Config{Debug: true, Tracer: prover})
 			executionResult, err := core.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(msg.Gas()))
 			if err != nil {
@@ -267,7 +266,7 @@ func GenerateStates(backend Backend, ctx context.Context, startGasUsed *big.Int,
 //  4. IntraState -> IntraState: one-step EVM execution (require tracing)
 //  5. IntraState -> InterState: transaction finalization (require tracing)
 //  6. InterState -> BlockState: block finalization
-func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*proof.OneStepProof, error) {
+func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*prover.OneStepProof, error) {
 	if startState.Block == nil {
 		return nil, fmt.Errorf("bad start state")
 	}
@@ -299,7 +298,7 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 			if err != nil {
 				return nil, err
 			}
-			return proof.GetBlockInitiationProof(bs)
+			return prover.GetBlockInitiationProof(bs)
 		} else {
 			// Type 6: block finalization
 			receipts, _ := backend.GetReceipts(ctx, startState.Block.Hash())
@@ -313,7 +312,7 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 				receipts,
 				blockHashTree,
 			)
-			return proof.GetBlockFinalizationProof(its)
+			return prover.GetBlockFinalizationProof(its)
 		}
 	}
 
@@ -348,12 +347,12 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 
 	if startState.StateType == state.InterStateType {
 		// Type 2: transaction initiation or Type 3: EOA transfer transaction
-		return proof.GetTransactionInitaitionProof(backend.ChainConfig(), &vmctx, transaction, &txContext, its, statedb)
+		return prover.GetTransactionInitaitionProof(backend.ChainConfig(), &vmctx, transaction, &txContext, its, statedb)
 	}
 	// Type 4: one-step EVM execution or Type 5: transaction finalization. Both require tracing.
 
 	// Set up the prover
-	prover := prover.NewProver(
+	prover := NewProver(
 		startState.VMHash,
 		startState.StepIdx,
 		backend.ChainConfig().Rules(vmctx.BlockNumber, vmctx.Random != nil),
