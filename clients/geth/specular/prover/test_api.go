@@ -23,7 +23,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/rpc"
 	oss "github.com/specularl2/specular/clients/geth/specular/prover/state"
 )
@@ -57,7 +56,7 @@ func (api *ProverAPI) GenerateProofForTest(ctx context.Context, hash common.Hash
 	if err != nil {
 		return nil, err
 	}
-	blockHashTree, err := oss.BlockHashTreeFromBlockContext(&vmctx)
+	blockHashTree, err := oss.BlockHashTreeFromBlockContext(vmctx)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +82,9 @@ func (api *ProverAPI) GenerateProofForTest(ctx context.Context, hash common.Hash
 		*its,
 		blockHashTree,
 	)
-	vmenv := vm.NewEVM(vmctx, txContext, statedb, api.backend.ChainConfig(), vm.Config{Debug: true, Tracer: prover})
+	vmenv := api.backend.NewEVM(vmctx, txContext, statedb, api.backend.ChainConfig(), oss.SpecularConfig{Debug: true, Tracer: prover})
 	statedb.Prepare(hash, int(index))
-	_, err = core.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(msg.Gas()))
+	_, err = api.backend.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(msg.Gas()))
 	if err != nil {
 		return nil, fmt.Errorf("tracing failed: %w", err)
 	}

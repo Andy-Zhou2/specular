@@ -33,12 +33,12 @@ type IntraStateGenerator struct {
 	// Context (read-only)
 	blockNumber          uint64
 	transactionIdx       uint64
-	committedGlobalState vm.StateDB
+	committedGlobalState state.SpecularState
 	startInterState      *state.InterState
 	blockHashTree        *state.BlockHashTree
 
 	// Global
-	env             *vm.EVM
+	env             state.SpecularEVM
 	counter         int
 	states          []GeneratedIntraState
 	err             error
@@ -59,7 +59,7 @@ type IntraStateGenerator struct {
 
 func NewIntraStateGenerator(
 	blockNumber, transactionIdx uint64,
-	committedGlobalState vm.StateDB,
+	committedGlobalState state.SpecularState,
 	interState state.InterState,
 	blockHashTree *state.BlockHashTree,
 ) *IntraStateGenerator {
@@ -76,7 +76,7 @@ func (l *IntraStateGenerator) CaptureTxStart(gasLimit uint64) {}
 
 func (l *IntraStateGenerator) CaptureTxEnd(restGas uint64) {}
 
-func (l *IntraStateGenerator) CaptureStart(env *vm.EVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
+func (l *IntraStateGenerator) CaptureStart(env state.SpecularEVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
 	l.env = env
 	// To be consistent with stepIdx, but not necessary for state generation
 	l.counter = 1

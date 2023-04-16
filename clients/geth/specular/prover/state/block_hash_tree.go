@@ -17,7 +17,6 @@ package state
 import (
 	basic_merkletree "github.com/cbergoon/merkletree"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/holiman/uint256"
 )
 
@@ -54,7 +53,7 @@ func NewBlockHashTree(hashes *BlockHashes) (*BlockHashTree, error) {
 	}, nil
 }
 
-func BlockHashTreeFromBlockContext(blockCtx *vm.BlockContext) (*BlockHashTree, error) {
+func BlockHashTreeFromBlockContext(blockCtx SpecularBlockContext) (*BlockHashTree, error) {
 	// Get BlockHashes of block [current-255, current]
 	blockHashes := BlockHashes{}
 	currentBlockNum := blockCtx.BlockNumber.Uint64()

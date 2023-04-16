@@ -145,11 +145,11 @@ func GetBlockFinalizationProof(interState *state.InterState) (*OneStepProof, err
 //     trie, and account proof of coinbase so verifier can finalize the transaction.
 func GetTransactionInitaitionProof(
 	chainConfig *params.ChainConfig,
-	vmctx *vm.BlockContext,
+	vmctx state.SpecularBlockContext,
 	tx *types.Transaction,
 	txctx *vm.TxContext,
 	interState *state.InterState,
-	statedb vm.StateDB,
+	statedb state.SpecularState,
 ) (*OneStepProof, error) {
 	osp := EmptyProof()
 	osp.SetVerifierType(VerifierTypeInterTx)

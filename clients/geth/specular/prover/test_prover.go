@@ -100,12 +100,12 @@ type TestProver struct {
 	rules                params.Rules
 	blockNumber          uint64
 	transactionIdx       uint64
-	committedGlobalState vm.StateDB
+	committedGlobalState state.SpecularState
 	startInterState      *state.InterState
 	blockHashTree        *state.BlockHashTree
 
 	// Global
-	env             *vm.EVM
+	env             state.SpecularEVM
 	counter         uint64
 	vmerr           error // Error from EVM execution
 	err             error // Error from the tracer
@@ -135,7 +135,7 @@ func NewTestProver(
 	rules params.Rules,
 	blockNumber uint64,
 	transactionIdx uint64,
-	committedGlobalState vm.StateDB,
+	committedGlobalState state.SpecularState,
 	interState state.InterState,
 	blockHashTree *state.BlockHashTree,
 ) *TestProver {
@@ -157,7 +157,7 @@ func (l *TestProver) CaptureTxStart(gasLimit uint64) {}
 
 func (l *TestProver) CaptureTxEnd(restGas uint64) {}
 
-func (l *TestProver) CaptureStart(env *vm.EVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
+func (l *TestProver) CaptureStart(env state.SpecularEVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
 	l.env = env
 	l.counter = 1
 	if create {

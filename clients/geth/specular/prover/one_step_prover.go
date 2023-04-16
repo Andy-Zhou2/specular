@@ -41,14 +41,14 @@ type OneStepProver struct {
 	rules                params.Rules
 	blockNumber          uint64
 	transactionIdx       uint64
-	committedGlobalState vm.StateDB
+	committedGlobalState state.SpecularState
 	startInterState      *state.InterState
 	blockHashTree        *state.BlockHashTree
 	transaction          *types.Transaction
 	receipt              *types.Receipt
 
 	// Global
-	env             *vm.EVM
+	env             state.SpecularEVM
 	counter         uint64
 	proof           *proof.OneStepProof
 	vmerr           error // Error from EVM execution
@@ -83,7 +83,7 @@ func NewProver(
 	rules params.Rules,
 	blockNumber uint64,
 	transactionIdx uint64,
-	committedGlobalState vm.StateDB,
+	committedGlobalState state.SpecularState,
 	interState state.InterState,
 	blockHashTree *state.BlockHashTree,
 	transaction *types.Transaction,
@@ -107,7 +107,7 @@ func (l *OneStepProver) CaptureTxStart(gasLimit uint64) {}
 
 func (l *OneStepProver) CaptureTxEnd(restGas uint64) {}
 
-func (l *OneStepProver) CaptureStart(env *vm.EVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
+func (l *OneStepProver) CaptureStart(env state.SpecularEVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
 	// We won't handle transaction initation proof here, it should be handlede outside tracing
 	l.env = env
 	l.counter = 1

@@ -16,19 +16,19 @@ package prover
 
 import (
 	"context"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/specularl2/specular/clients/geth/specular/prover/state"
 )
 
 // Backend interface provides the common API services (that are provided by
@@ -47,8 +47,15 @@ type Backend interface {
 	// StateAtBlock returns the state corresponding to the stateroot of the block.
 	// N.B: For executing transactions on block N, the required stateRoot is block N-1,
 	// so this method should be called with the parent.
-	StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base *state.StateDB, checkLive, preferDisk bool) (*state.StateDB, error)
-	StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, vm.BlockContext, *state.StateDB, error)
+	StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base state.SpecularState, checkLive, preferDisk bool) (state.SpecularState, error)
+	StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, state.SpecularBlockContext, state.SpecularState, error)
+
+	// functions from package vm:
+	NewEVMBlockContext(header *types.Header, chain core.ChainContext, author *common.Address) state.SpecularBlockContext
+	NewEVM(blockCtx state.SpecularBlockContext, txCtx vm.TxContext, statedb state.SpecularState, chainConfig *params.ChainConfig, config state.SpecularConfig) state.SpecularEVM
+
+	// functions from package core:
+	ApplyMessage(evm state.SpecularEVM, msg core.Message, gp *core.GasPool) (*core.ExecutionResult, error)
 }
 
 // ProverAPI is the collection of Specular one-step proof APIs.
