@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package proof
+package prover
 
 import (
 	"context"
@@ -24,8 +24,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/specularl2/specular/clients/geth/specular/proof/prover"
-	"github.com/specularl2/specular/clients/geth/specular/proof/state"
+	"github.com/specularl2/specular/clients/geth/specular/prover/proof"
+	"github.com/specularl2/specular/clients/geth/specular/prover/state"
 	"github.com/specularl2/specular/clients/geth/specular/rollup/utils/fmt"
 )
 
@@ -262,7 +262,7 @@ func GenerateStates(backend Backend, ctx context.Context, startGasUsed *big.Int,
 //  4. IntraState -> IntraState: one-step EVM execution (require tracing)
 //  5. IntraState -> InterState: transaction finalization (require tracing)
 //  6. InterState -> BlockState: block finalization
-func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*prover.OneStepProof, error) {
+func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*proof.OneStepProof, error) {
 	if startState.Block == nil {
 		return nil, fmt.Errorf("bad start state")
 	}
@@ -294,7 +294,7 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 			if err != nil {
 				return nil, err
 			}
-			return prover.GetBlockInitiationProof(bs)
+			return proof.GetBlockInitiationProof(bs)
 		} else {
 			// Type 6: block finalization
 			receipts, _ := backend.GetReceipts(ctx, startState.Block.Hash())
@@ -308,7 +308,7 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 				receipts,
 				blockHashTree,
 			)
-			return prover.GetBlockFinalizationProof(its)
+			return proof.GetBlockFinalizationProof(its)
 		}
 	}
 
@@ -343,7 +343,7 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 
 	if startState.StateType == state.InterStateType {
 		// Type 2: transaction initiation or Type 3: EOA transfer transaction
-		return prover.GetTransactionInitaitionProof(backend.ChainConfig(), &vmctx, transaction, &txContext, its, statedb)
+		return proof.GetTransactionInitaitionProof(backend.ChainConfig(), &vmctx, transaction, &txContext, its, statedb)
 	}
 	// Type 4: one-step EVM execution or Type 5: transaction finalization. Both require tracing.
 

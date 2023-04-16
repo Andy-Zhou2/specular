@@ -33,7 +33,7 @@ import (
 	lescatalyst "github.com/ethereum/go-ethereum/les/catalyst"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/specularl2/specular/clients/geth/specular/internal/ethapi"
-	"github.com/specularl2/specular/clients/geth/specular/proof"
+	"github.com/specularl2/specular/clients/geth/specular/prover"
 	rollup "github.com/specularl2/specular/clients/geth/specular/rollup/services"
 	"github.com/urfave/cli/v2"
 )
@@ -119,7 +119,7 @@ func RegisterEthService(stack *node.Node, cfg *ethconfig.Config) (ethapi.Backend
 	}
 	stack.RegisterAPIs(tracers.APIs(backend.APIBackend))
 	// <specular modification>
-	stack.RegisterAPIs(proof.APIs(backend.APIBackend))
+	stack.RegisterAPIs(prover.APIs(backend.APIBackend))
 	// <specular modification/>
 	return backend.APIBackend, backend
 }
