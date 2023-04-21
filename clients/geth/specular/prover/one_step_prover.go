@@ -41,7 +41,7 @@ type OneStepProver struct {
 	rules                params.Rules
 	blockNumber          uint64
 	transactionIdx       uint64
-	committedGlobalState state.L2ELClientStateInterfaceState
+	committedGlobalState state.L2ELClientStateInterface
 	startInterState      *state.InterState
 	blockHashTree        *state.BlockHashTree
 	transaction          *types.Transaction
@@ -83,7 +83,7 @@ func NewProver(
 	rules params.Rules,
 	blockNumber uint64,
 	transactionIdx uint64,
-	committedGlobalState state.L2ELClientStateInterfaceState,
+	committedGlobalState state.L2ELClientStateInterface,
 	interState state.InterState,
 	blockHashTree *state.BlockHashTree,
 	transaction *types.Transaction,

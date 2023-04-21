@@ -47,11 +47,11 @@ type SpecularBackend interface {
 	// StateAtBlock returns the state corresponding to the stateroot of the block.
 	// N.B: For executing transactions on block N, the required stateRoot is block N-1,
 	// so this method should be called with the parent.
-	StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base state.L2ELClientStateInterfaceState, checkLive, preferDisk bool) (state.L2ELClientStateInterfaceState, error)
-	StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, state.L2ELClientBlockContextInterface, state.L2ELClientStateInterfaceState, error)
+	StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base state.L2ELClientStateInterface, checkLive, preferDisk bool) (state.L2ELClientStateInterface, error)
+	StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, state.L2ELClientBlockContextInterface, state.L2ELClientStateInterface, error)
 
 	// functions from package vm:
-	NewEVM(blockCtx state.L2ELClientBlockContextInterface, txCtx vm.TxContext, statedb state.L2ELClientStateInterfaceState, chainConfig *params.ChainConfig, config state.L2ELClientConfig) state.L2ELClientEVMInterface
+	NewEVM(blockCtx state.L2ELClientBlockContextInterface, txCtx vm.TxContext, statedb state.L2ELClientStateInterface, chainConfig *params.ChainConfig, config state.L2ELClientConfig) state.L2ELClientEVMInterface
 
 	// functions from package core:
 	NewEVMBlockContext(header *types.Header, chain core.ChainContext, author *common.Address) state.L2ELClientBlockContextInterface

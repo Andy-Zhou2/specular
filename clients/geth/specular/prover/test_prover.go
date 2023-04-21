@@ -100,7 +100,7 @@ type TestProver struct {
 	rules                params.Rules
 	blockNumber          uint64
 	transactionIdx       uint64
-	committedGlobalState state.L2ELClientStateInterfaceState
+	committedGlobalState state.L2ELClientStateInterface
 	startInterState      *state.InterState
 	blockHashTree        *state.BlockHashTree
 
@@ -135,7 +135,7 @@ func NewTestProver(
 	rules params.Rules,
 	blockNumber uint64,
 	transactionIdx uint64,
-	committedGlobalState state.L2ELClientStateInterfaceState,
+	committedGlobalState state.L2ELClientStateInterface,
 	interState state.InterState,
 	blockHashTree *state.BlockHashTree,
 ) *TestProver {

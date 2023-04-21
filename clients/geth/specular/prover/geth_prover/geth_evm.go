@@ -15,7 +15,7 @@ func (e *GethEVM) Context() my_state.L2ELClientBlockContextInterface {
 	return GethBlockContext{e.EVM.Context}
 }
 
-func (e *GethEVM) StateDB() my_state.L2ELClientStateInterfaceState {
+func (e *GethEVM) StateDB() my_state.L2ELClientStateInterface {
 	// assert EVM.StateDB is a *state.StateDB, as the prover only works with state.StateDB
 	return GethState{StateDB: e.EVM.StateDB.(*state.StateDB)}
 }

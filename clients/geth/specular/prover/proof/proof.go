@@ -149,7 +149,7 @@ func GetTransactionInitaitionProof(
 	tx *types.Transaction,
 	txctx *vm.TxContext,
 	interState *state.InterState,
-	statedb state.L2ELClientStateInterfaceState,
+	statedb state.L2ELClientStateInterface,
 ) (*OneStepProof, error) {
 	osp := EmptyProof()
 	osp.SetVerifierType(VerifierTypeInterTx)

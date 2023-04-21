@@ -58,8 +58,8 @@ type IntraState struct {
 	Memory               *Memory
 	InputData            *Memory
 	ReturnData           *Memory
-	CommittedGlobalState L2ELClientStateInterfaceState
-	GlobalState          L2ELClientStateInterfaceState
+	CommittedGlobalState L2ELClientStateInterface
+	GlobalState          L2ELClientStateInterface
 	SelfDestructSet      *SelfDestructSet
 	LogSeries            *LogSeries
 	BlockHashTree        *BlockHashTree
@@ -148,7 +148,7 @@ func (s *IntraState) HashAsLastDepth(callFlag CallFlag, cost uint64) common.Hash
 
 func StateFromCaptured(
 	blockNumber, transactionIdx uint64,
-	committedGlobalState L2ELClientStateInterfaceState,
+	committedGlobalState L2ELClientStateInterface,
 	selfDestructSet *SelfDestructSet,
 	blockHashTree *BlockHashTree,
 	accessListTrie *AccessListTrie,
@@ -205,7 +205,7 @@ func StateFromCaptured(
 type InterState struct {
 	BlockNumber       uint64
 	TransactionIdx    uint64
-	GlobalState       L2ELClientStateInterfaceState
+	GlobalState       L2ELClientStateInterface
 	CumulativeGasUsed *uint256.Int
 	BlockGasUsed      *uint256.Int
 	BlockHashTree     *BlockHashTree
@@ -238,7 +238,7 @@ func (s *InterState) IsInter() bool {
 
 func InterStateFromCaptured(
 	blockNumber, transactionIdx uint64,
-	statedb L2ELClientStateInterfaceState,
+	statedb L2ELClientStateInterface,
 	cumulativeGasUsed, blockGasUsed *big.Int,
 	transactions types.Transactions,
 	receipts types.Receipts,
@@ -263,7 +263,7 @@ func InterStateFromCaptured(
 // Represent the state at the end of a finalized block
 type BlockState struct {
 	BlockNumber       uint64
-	GlobalState       L2ELClientStateInterfaceState
+	GlobalState       L2ELClientStateInterface
 	CumulativeGasUsed *uint256.Int
 	BlockHashTree     *BlockHashTree
 }
@@ -284,7 +284,7 @@ func (s *BlockState) IsInter() bool {
 	return true
 }
 
-func BlockStateFromBlock(blockNumber uint64, stateDB L2ELClientStateInterfaceState, cumulativeGasUsed *big.Int, blockHashTree *BlockHashTree) (*BlockState, error) {
+func BlockStateFromBlock(blockNumber uint64, stateDB L2ELClientStateInterface, cumulativeGasUsed *big.Int, blockHashTree *BlockHashTree) (*BlockState, error) {
 	g, _ := uint256.FromBig(cumulativeGasUsed)
 	return &BlockState{
 		BlockNumber:       blockNumber,

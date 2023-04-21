@@ -76,6 +76,6 @@ func (g GethState) GetCodeHash(address common.Address) common.Hash {
 	return g.StateDB.GetCodeHash(address)
 }
 
-func (g GethState) Copy() oss.L2ELClientStateInterfaceState {
+func (g GethState) Copy() oss.L2ELClientStateInterface {
 	return &GethState{StateDB: g.StateDB.Copy()}
 }

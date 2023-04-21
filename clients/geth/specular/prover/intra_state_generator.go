@@ -33,7 +33,7 @@ type IntraStateGenerator struct {
 	// Context (read-only)
 	blockNumber          uint64
 	transactionIdx       uint64
-	committedGlobalState state.L2ELClientStateInterfaceState
+	committedGlobalState state.L2ELClientStateInterface
 	startInterState      *state.InterState
 	blockHashTree        *state.BlockHashTree
 
@@ -59,7 +59,7 @@ type IntraStateGenerator struct {
 
 func NewIntraStateGenerator(
 	blockNumber, transactionIdx uint64,
-	committedGlobalState state.L2ELClientStateInterfaceState,
+	committedGlobalState state.L2ELClientStateInterface,
 	interState state.InterState,
 	blockHashTree *state.BlockHashTree,
 ) *IntraStateGenerator {

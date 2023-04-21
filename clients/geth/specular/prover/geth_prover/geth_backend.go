@@ -58,7 +58,7 @@ func (g GethBackend) ChainDb() ethdb.Database {
 	return g.Backend.ChainDb()
 }
 
-func (g GethBackend) StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base oss.L2ELClientStateInterfaceState, checkLive, preferDisk bool) (oss.L2ELClientStateInterfaceState, error) {
+func (g GethBackend) StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base oss.L2ELClientStateInterface, checkLive, preferDisk bool) (oss.L2ELClientStateInterface, error) {
 	geth_state, e := base.(*GethState)
 	if e {
 		panic("base state is not a GethState")
@@ -67,12 +67,12 @@ func (g GethBackend) StateAtBlock(ctx context.Context, block *types.Block, reexe
 	return GethState{StateDB: s}, err
 }
 
-func (g GethBackend) StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, oss.L2ELClientBlockContextInterface, oss.L2ELClientStateInterfaceState, error) {
+func (g GethBackend) StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, oss.L2ELClientBlockContextInterface, oss.L2ELClientStateInterface, error) {
 	msg, block_context, state, err := g.Backend.StateAtTransaction(ctx, block, txIndex, reexec)
 	return msg, &GethBlockContext{block_context}, GethState{StateDB: state}, err
 }
 
-func (g GethBackend) NewEVM(blockCtx oss.L2ELClientBlockContextInterface, txCtx vm.TxContext, statedb oss.L2ELClientStateInterfaceState, chainConfig *params.ChainConfig, config oss.L2ELClientConfig) oss.L2ELClientEVMInterface {
+func (g GethBackend) NewEVM(blockCtx oss.L2ELClientBlockContextInterface, txCtx vm.TxContext, statedb oss.L2ELClientStateInterface, chainConfig *params.ChainConfig, config oss.L2ELClientConfig) oss.L2ELClientEVMInterface {
 	return &GethEVM{vm.NewEVM(blockCtx.(GethBlockContext).Context, txCtx, statedb.(*GethState).StateDB, chainConfig, vm.Config{Debug: config.Debug, Tracer: config.Tracer.(vm.EVMLogger)})}
 }
 

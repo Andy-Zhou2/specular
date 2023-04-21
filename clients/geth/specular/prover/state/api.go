@@ -6,9 +6,9 @@ import (
 	"math/big"
 )
 
-type L2ELClientStateInterfaceState interface {
+type L2ELClientStateInterface interface {
 	Prepare(thash common.Hash, ti int)
-	Copy() L2ELClientStateInterfaceState
+	Copy() L2ELClientStateInterface
 	GetRootForProof() common.Hash
 	GetRefund() uint64
 	CommitForProof()
@@ -28,7 +28,7 @@ type L2ELClientStateInterfaceState interface {
 
 type L2ELClientStateInterfaceVM interface {
 	//Prepare(thash common.Hash, ti int)
-	Copy() L2ELClientStateInterfaceState
+	Copy() L2ELClientStateInterface
 	GetRootForProof() common.Hash
 	GetRefund() uint64
 	CommitForProof()
@@ -48,7 +48,7 @@ type L2ELClientStateInterfaceVM interface {
 
 type (
 	// CanTransferFunc is the signature of a transfer guard function
-	CanTransferFunc func(L2ELClientStateInterfaceState, common.Address, *big.Int) bool
+	CanTransferFunc func(L2ELClientStateInterface, common.Address, *big.Int) bool
 	// GetHashFunc returns the n'th block hash in the blockchain
 	// and is used by the BLOCKHASH EVM op code.
 	GetHashFunc func(uint64) common.Hash
@@ -79,5 +79,5 @@ type L2ELClientEVMInterface interface {
 	// Context provides auxiliary blockchain related information
 	Context() L2ELClientBlockContextInterface
 	// StateDB gives access to the underlying state
-	StateDB() L2ELClientStateInterfaceState
+	StateDB() L2ELClientStateInterface
 }

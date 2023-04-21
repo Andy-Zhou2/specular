@@ -13,8 +13,8 @@ type GethBlockContext struct {
 
 // implements L2ELClientBlockContextInterface
 
-func SpecularCanTransferFuncFromGeth(f func(vm.StateDB, common.Address, *big.Int) bool) func(state.L2ELClientStateInterfaceState, common.Address, *big.Int) bool {
-	return func(s state.L2ELClientStateInterfaceState, address common.Address, amount *big.Int) bool {
+func SpecularCanTransferFuncFromGeth(f func(vm.StateDB, common.Address, *big.Int) bool) func(state.L2ELClientStateInterface, common.Address, *big.Int) bool {
+	return func(s state.L2ELClientStateInterface, address common.Address, amount *big.Int) bool {
 		return f(s.(GethState).StateDB, address, amount)
 	}
 }
