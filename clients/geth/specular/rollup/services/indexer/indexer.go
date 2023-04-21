@@ -10,7 +10,7 @@ import (
 
 type Indexer struct{ *services.BaseService }
 
-func New(eth services.Backend, proofBackend prover.Backend, l1Client client.L1BridgeClient, cfg *services.Config) (*Indexer, error) {
+func New(eth services.Backend, proofBackend prover.SpecularBackend, l1Client client.L1BridgeClient, cfg *services.Config) (*Indexer, error) {
 	base, err := services.NewBaseService(eth, proofBackend, l1Client, cfg)
 	if err != nil {
 		return nil, err

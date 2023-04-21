@@ -24,7 +24,7 @@ import (
 )
 
 func GetAccountProof(
-	db state.SpecularState,
+	db state.L2ELClientStateInterfaceState,
 	address common.Address,
 ) (*MPTProof, error) {
 	accountProof, err := db.GetProof(address)
@@ -35,7 +35,7 @@ func GetAccountProof(
 }
 
 func GetStorageProof(
-	db state.SpecularState,
+	db state.L2ELClientStateInterfaceState,
 	address common.Address,
 	key common.Hash,
 ) (*MPTProof, *MPTProof, error) {

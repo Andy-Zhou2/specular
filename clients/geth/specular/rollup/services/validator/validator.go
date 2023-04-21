@@ -38,7 +38,7 @@ type Validator struct {
 }
 
 // TODO: this shares a lot of code with sequencer
-func New(eth services.Backend, proofBackend prover.Backend, l1Client client.L1BridgeClient, cfg *services.Config) (*Validator, error) {
+func New(eth services.Backend, proofBackend prover.SpecularBackend, l1Client client.L1BridgeClient, cfg *services.Config) (*Validator, error) {
 	base, err := services.NewBaseService(eth, proofBackend, l1Client, cfg)
 	if err != nil {
 		return nil, err

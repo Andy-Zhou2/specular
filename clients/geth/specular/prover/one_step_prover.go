@@ -41,14 +41,14 @@ type OneStepProver struct {
 	rules                params.Rules
 	blockNumber          uint64
 	transactionIdx       uint64
-	committedGlobalState state.SpecularState
+	committedGlobalState state.L2ELClientStateInterfaceState
 	startInterState      *state.InterState
 	blockHashTree        *state.BlockHashTree
 	transaction          *types.Transaction
 	receipt              *types.Receipt
 
 	// Global
-	env             state.SpecularEVM
+	env             state.L2ELClientEVMInterface
 	counter         uint64
 	proof           *proof.OneStepProof
 	vmerr           error // Error from EVM execution
@@ -83,7 +83,7 @@ func NewProver(
 	rules params.Rules,
 	blockNumber uint64,
 	transactionIdx uint64,
-	committedGlobalState state.SpecularState,
+	committedGlobalState state.L2ELClientStateInterfaceState,
 	interState state.InterState,
 	blockHashTree *state.BlockHashTree,
 	transaction *types.Transaction,
@@ -107,7 +107,7 @@ func (l *OneStepProver) CaptureTxStart(gasLimit uint64) {}
 
 func (l *OneStepProver) CaptureTxEnd(restGas uint64) {}
 
-func (l *OneStepProver) CaptureStart(env state.SpecularEVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
+func (l *OneStepProver) CaptureStart(env state.L2ELClientEVMInterface, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
 	// We won't handle transaction initation proof here, it should be handlede outside tracing
 	l.env = env
 	l.counter = 1
@@ -119,7 +119,7 @@ func (l *OneStepProver) CaptureStart(env state.SpecularEVM, from common.Address,
 	l.input = state.NewMemoryFromBytes(input)
 	l.accessListTrie = state.NewAccessListTrie()
 	l.selfDestructSet = state.NewSelfDestructSet()
-	l.startInterState.GlobalState = env.StateDB.Copy() // This state includes gas-buying and nonce-increment
+	l.startInterState.GlobalState = env.StateDB().Copy() // This state includes gas-buying and nonce-increment
 	l.lastDepthState = l.startInterState
 	log.Info("Capture Start", "from", from, "to", to)
 }
@@ -173,7 +173,7 @@ func (l *OneStepProver) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, 
 		}
 		// l.vmerr is the error of l.lastState, either before/during the opcode execution
 		// if l.vmerr is not nil, the current state s must be in the parent call frame of l.lastState
-		ctx := proof.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
+		ctx := proof.NewProofGenContext(l.rules, l.env.Context().Coinbase(), l.transaction, l.receipt, l.lastCode)
 		osp, err := proof.GetIntraProof(ctx, l.lastState, s, l.vmerr)
 		if err != nil {
 			l.err = err
@@ -275,7 +275,7 @@ func (l *OneStepProver) CaptureEnd(output []byte, gasUsed uint64, t time.Duratio
 		}
 		// If l.vmerr is not nil, the entire transaction execution will be reverted.
 		// Otherwise, the execution ended through STOP or RETURN opcode.
-		ctx := proof.NewProofGenContext(l.rules, l.env.Context.Coinbase, l.transaction, l.receipt, l.lastCode)
+		ctx := proof.NewProofGenContext(l.rules, l.env.Context().Coinbase(), l.transaction, l.receipt, l.lastCode)
 		osp, err := proof.GetIntraProof(ctx, l.lastState, nil, l.vmerr)
 		if err != nil {
 			l.err = err

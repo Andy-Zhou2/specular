@@ -23,7 +23,7 @@ type BaseService struct {
 	Config *Config
 
 	Eth          Backend
-	ProofBackend prover.Backend
+	ProofBackend prover.SpecularBackend
 	L1Client     client.L1BridgeClient
 	L1Syncer     *client.L1Syncer
 
@@ -31,7 +31,7 @@ type BaseService struct {
 	Wg     sync.WaitGroup
 }
 
-func NewBaseService(eth Backend, proofBackend prover.Backend, l1Client client.L1BridgeClient, cfg *Config) (*BaseService, error) {
+func NewBaseService(eth Backend, proofBackend prover.SpecularBackend, l1Client client.L1BridgeClient, cfg *Config) (*BaseService, error) {
 	return &BaseService{
 		Config:       cfg,
 		Eth:          eth,

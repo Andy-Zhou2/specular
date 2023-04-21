@@ -87,7 +87,7 @@ func (s *ExecutionState) Hash() common.Hash {
 //  7. the BlockState of the block A
 //  8. a dummy InterState
 //  9. the BlockState of the block B
-func GenerateStates(backend Backend, ctx context.Context, startGasUsed *big.Int, startNum, endNum uint64, config *ProverConfig) ([]*ExecutionState, error) {
+func GenerateStates(backend SpecularBackend, ctx context.Context, startGasUsed *big.Int, startNum, endNum uint64, config *ProverConfig) ([]*ExecutionState, error) {
 	parent, err := backend.BlockByNumber(ctx, rpc.BlockNumber(startNum-1))
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func GenerateStates(backend Backend, ctx context.Context, startGasUsed *big.Int,
 	if err != nil {
 		return nil, err
 	}
-	bs, err := state.BlockStateFromBlock(parentBlockCtx.BlockNumber.Uint64(), statedb, cumulativeGasUsedCopy, blockHashTree)
+	bs, err := state.BlockStateFromBlock(parentBlockCtx.BlockNumber().Uint64(), statedb, cumulativeGasUsedCopy, blockHashTree)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func GenerateStates(backend Backend, ctx context.Context, startGasUsed *big.Int,
 
 			// Execute transaction i with intra state generator enabled.
 			prover := NewIntraStateGenerator(block.NumberU64(), uint64(i), statedb, *its, blockHashTree)
-			vmenv := backend.NewEVM(blockCtx, txContext, statedb, backend.ChainConfig(), state.SpecularConfig{Debug: true, Tracer: prover})
+			vmenv := backend.NewEVM(blockCtx, txContext, statedb, backend.ChainConfig(), state.L2ELClientConfig{Debug: true, Tracer: prover})
 			executionResult, err := backend.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(msg.Gas()))
 			if err != nil {
 				return nil, fmt.Errorf("tracing failed: %w", err)
@@ -261,7 +261,7 @@ func GenerateStates(backend Backend, ctx context.Context, startGasUsed *big.Int,
 //  4. IntraState -> IntraState: one-step EVM execution (require tracing)
 //  5. IntraState -> InterState: transaction finalization (require tracing)
 //  6. InterState -> BlockState: block finalization
-func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*proof.OneStepProof, error) {
+func GenerateProof(backend SpecularBackend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*proof.OneStepProof, error) {
 	if startState.Block == nil {
 		return nil, fmt.Errorf("bad start state")
 	}
@@ -350,7 +350,7 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 	prover := NewProver(
 		startState.VMHash,
 		startState.StepIdx,
-		backend.ChainConfig().Rules(vmctx.BlockNumber, vmctx.Random != nil),
+		backend.ChainConfig().Rules(vmctx.BlockNumber(), vmctx.Random != nil),
 		startState.Block.NumberU64(),
 		startState.TransactionIdx,
 		statedb,
@@ -360,7 +360,7 @@ func GenerateProof(backend Backend, ctx context.Context, startState *ExecutionSt
 		receipts[startState.TransactionIdx],
 	)
 	// Run the transaction with prover enabled.
-	vmenv := backend.NewEVM(vmctx, txContext, statedb, backend.ChainConfig(), state.SpecularConfig{Debug: true, Tracer: prover})
+	vmenv := backend.NewEVM(vmctx, txContext, statedb, backend.ChainConfig(), state.L2ELClientConfig{Debug: true, Tracer: prover})
 	// Call Prepare to clear out the statedb access list
 	txHash := transactions[startState.TransactionIdx].Hash()
 	statedb.Prepare(txHash, int(startState.TransactionIdx))

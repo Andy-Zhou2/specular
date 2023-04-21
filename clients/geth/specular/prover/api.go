@@ -33,7 +33,7 @@ import (
 
 // Backend interface provides the common API services (that are provided by
 // both full and light clients) with access to necessary functions.
-type Backend interface {
+type SpecularBackend interface {
 	HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error)
 	HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error)
 	BlockByHash(ctx context.Context, hash common.Hash) (*types.Block, error)
@@ -47,29 +47,29 @@ type Backend interface {
 	// StateAtBlock returns the state corresponding to the stateroot of the block.
 	// N.B: For executing transactions on block N, the required stateRoot is block N-1,
 	// so this method should be called with the parent.
-	StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base state.SpecularState, checkLive, preferDisk bool) (state.SpecularState, error)
-	StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, state.SpecularBlockContext, state.SpecularState, error)
+	StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base state.L2ELClientStateInterfaceState, checkLive, preferDisk bool) (state.L2ELClientStateInterfaceState, error)
+	StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, state.L2ELClientBlockContextInterface, state.L2ELClientStateInterfaceState, error)
 
 	// functions from package vm:
-	NewEVMBlockContext(header *types.Header, chain core.ChainContext, author *common.Address) state.SpecularBlockContext
-	NewEVM(blockCtx state.SpecularBlockContext, txCtx vm.TxContext, statedb state.SpecularState, chainConfig *params.ChainConfig, config state.SpecularConfig) state.SpecularEVM
+	NewEVM(blockCtx state.L2ELClientBlockContextInterface, txCtx vm.TxContext, statedb state.L2ELClientStateInterfaceState, chainConfig *params.ChainConfig, config state.L2ELClientConfig) state.L2ELClientEVMInterface
 
 	// functions from package core:
-	ApplyMessage(evm state.SpecularEVM, msg core.Message, gp *core.GasPool) (*core.ExecutionResult, error)
+	NewEVMBlockContext(header *types.Header, chain core.ChainContext, author *common.Address) state.L2ELClientBlockContextInterface
+	ApplyMessage(evm state.L2ELClientEVMInterface, msg core.Message, gp *core.GasPool) (*core.ExecutionResult, error)
 }
 
 // ProverAPI is the collection of Specular one-step proof APIs.
 type ProverAPI struct {
-	backend Backend
+	backend SpecularBackend
 }
 
 // NewAPI creates a new API definition for the Specular one-step proof services.
-func NewAPI(backend Backend) *ProverAPI {
+func NewAPI(backend SpecularBackend) *ProverAPI {
 	return &ProverAPI{backend: backend}
 }
 
 type chainContext struct {
-	backend Backend
+	backend SpecularBackend
 	ctx     context.Context
 }
 
@@ -92,7 +92,7 @@ func (context *chainContext) GetHeader(hash common.Hash, number uint64) *types.H
 	return header
 }
 
-func createChainContext(backend Backend, ctx context.Context) core.ChainContext {
+func createChainContext(backend SpecularBackend, ctx context.Context) core.ChainContext {
 	return &chainContext{backend: backend, ctx: ctx}
 }
 
@@ -130,7 +130,7 @@ func (api *ProverAPI) GenerateStateHashes(ctx context.Context, startGasUsed *big
 }
 
 // APIs return the collection of RPC services the tracer package offers.
-func APIs(backend Backend) []rpc.API {
+func APIs(backend SpecularBackend) []rpc.API {
 	// Append all the local APIs and return
 	return []rpc.API{
 		{

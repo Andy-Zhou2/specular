@@ -75,14 +75,14 @@ func (api *ProverAPI) GenerateProofForTest(ctx context.Context, hash common.Hash
 		transaction,
 		&txContext,
 		receipts[index],
-		api.backend.ChainConfig().Rules(vmctx.BlockNumber, vmctx.Random != nil),
+		api.backend.ChainConfig().Rules(vmctx.BlockNumber(), vmctx.Random != nil),
 		blockNumber,
 		index,
 		statedb,
 		*its,
 		blockHashTree,
 	)
-	vmenv := api.backend.NewEVM(vmctx, txContext, statedb, api.backend.ChainConfig(), oss.SpecularConfig{Debug: true, Tracer: prover})
+	vmenv := api.backend.NewEVM(vmctx, txContext, statedb, api.backend.ChainConfig(), oss.L2ELClientConfig{Debug: true, Tracer: prover})
 	statedb.Prepare(hash, int(index))
 	_, err = api.backend.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(msg.Gas()))
 	if err != nil {

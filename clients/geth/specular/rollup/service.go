@@ -23,7 +23,7 @@ import (
 
 // RegisterRollupService registers rollup service configured by ctx
 // Either a sequncer service or a validator service will be registered
-func RegisterRollupService(stack *node.Node, eth services.Backend, proofBackend prover.Backend, cfg *services.Config) {
+func RegisterRollupService(stack *node.Node, eth services.Backend, proofBackend prover.SpecularBackend, cfg *services.Config) {
 	// Unlock account for L1 transaction signer
 	var ks *keystore.KeyStore
 	if keystores := stack.AccountManager().Backends(keystore.KeyStoreType); len(keystores) > 0 {
