@@ -40,7 +40,7 @@ type Sequencer struct {
 	challengeResoutionCh chan struct{}
 }
 
-func New(eth services.Backend, proofBackend prover.SpecularBackend, l1Client client.L1BridgeClient, cfg *services.Config) (*Sequencer, error) {
+func New(eth services.Backend, proofBackend prover.L2ELClientBackend, l1Client client.L1BridgeClient, cfg *services.Config) (*Sequencer, error) {
 	base, err := services.NewBaseService(eth, proofBackend, l1Client, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create base service, err: %w", err)

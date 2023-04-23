@@ -87,7 +87,7 @@ func (s *ExecutionState) Hash() common.Hash {
 //  7. the BlockState of the block A
 //  8. a dummy InterState
 //  9. the BlockState of the block B
-func GenerateStates(backend SpecularBackend, ctx context.Context, startGasUsed *big.Int, startNum, endNum uint64, config *ProverConfig) ([]*ExecutionState, error) {
+func GenerateStates(backend L2ELClientBackend, ctx context.Context, startGasUsed *big.Int, startNum, endNum uint64, config *ProverConfig) ([]*ExecutionState, error) {
 	parent, err := backend.BlockByNumber(ctx, rpc.BlockNumber(startNum-1))
 	if err != nil {
 		return nil, err
@@ -261,7 +261,7 @@ func GenerateStates(backend SpecularBackend, ctx context.Context, startGasUsed *
 //  4. IntraState -> IntraState: one-step EVM execution (require tracing)
 //  5. IntraState -> InterState: transaction finalization (require tracing)
 //  6. InterState -> BlockState: block finalization
-func GenerateProof(backend SpecularBackend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*proof.OneStepProof, error) {
+func GenerateProof(backend L2ELClientBackend, ctx context.Context, startState *ExecutionState, config *ProverConfig) (*proof.OneStepProof, error) {
 	if startState.Block == nil {
 		return nil, fmt.Errorf("bad start state")
 	}

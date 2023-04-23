@@ -26,26 +26,6 @@ type L2ELClientStateInterface interface {
 	GetCodeHash(common.Address) common.Hash
 }
 
-type L2ELClientStateInterfaceVM interface {
-	//Prepare(thash common.Hash, ti int)
-	Copy() L2ELClientStateInterface
-	GetRootForProof() common.Hash
-	GetRefund() uint64
-	CommitForProof()
-	GetCurrentLogs() []*types.Log
-	GetCode(address common.Address) []byte
-	GetProof(common.Address) ([][]byte, error)
-	GetStorageProof(common.Address, common.Hash) ([][]byte, error)
-	SubBalance(common.Address, *big.Int)
-	SetNonce(common.Address, uint64)
-	GetNonce(common.Address) uint64
-	AddBalance(common.Address, *big.Int)
-	DeleteSuicidedAccountForProof(addr common.Address)
-	SetCode(common.Address, []byte)
-	GetBalance(common.Address) *big.Int
-	GetCodeHash(common.Address) common.Hash
-}
-
 type (
 	// CanTransferFunc is the signature of a transfer guard function
 	CanTransferFunc func(L2ELClientStateInterface, common.Address, *big.Int) bool

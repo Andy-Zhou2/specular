@@ -33,7 +33,7 @@ import (
 
 // Backend interface provides the common API services (that are provided by
 // both full and light clients) with access to necessary functions.
-type SpecularBackend interface {
+type L2ELClientBackend interface {
 	HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error)
 	HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error)
 	BlockByHash(ctx context.Context, hash common.Hash) (*types.Block, error)
@@ -60,16 +60,16 @@ type SpecularBackend interface {
 
 // ProverAPI is the collection of Specular one-step proof APIs.
 type ProverAPI struct {
-	backend SpecularBackend
+	backend L2ELClientBackend
 }
 
 // NewAPI creates a new API definition for the Specular one-step proof services.
-func NewAPI(backend SpecularBackend) *ProverAPI {
+func NewAPI(backend L2ELClientBackend) *ProverAPI {
 	return &ProverAPI{backend: backend}
 }
 
 type chainContext struct {
-	backend SpecularBackend
+	backend L2ELClientBackend
 	ctx     context.Context
 }
 
@@ -92,7 +92,7 @@ func (context *chainContext) GetHeader(hash common.Hash, number uint64) *types.H
 	return header
 }
 
-func createChainContext(backend SpecularBackend, ctx context.Context) core.ChainContext {
+func createChainContext(backend L2ELClientBackend, ctx context.Context) core.ChainContext {
 	return &chainContext{backend: backend, ctx: ctx}
 }
 
@@ -130,7 +130,7 @@ func (api *ProverAPI) GenerateStateHashes(ctx context.Context, startGasUsed *big
 }
 
 // APIs return the collection of RPC services the tracer package offers.
-func APIs(backend SpecularBackend) []rpc.API {
+func APIs(backend L2ELClientBackend) []rpc.API {
 	// Append all the local APIs and return
 	return []rpc.API{
 		{

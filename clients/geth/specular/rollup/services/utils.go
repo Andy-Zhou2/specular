@@ -35,7 +35,7 @@ func LogBlockChainInfo(backend Backend, start, end uint64) {
 
 func SubmitOneStepProof(
 	ctx context.Context,
-	proofBackend prover.SpecularBackend,
+	proofBackend prover.L2ELClientBackend,
 	l1Client client.L1BridgeClient,
 	state *prover.ExecutionState,
 	challengedStepIndex *big.Int,
@@ -66,7 +66,7 @@ func SubmitOneStepProof(
 
 func RespondBisection(
 	ctx context.Context,
-	proofBackend prover.SpecularBackend,
+	proofBackend prover.L2ELClientBackend,
 	l1Client client.L1BridgeClient,
 	ev *bindings.ISymChallengeBisected,
 	states []*prover.ExecutionState,
